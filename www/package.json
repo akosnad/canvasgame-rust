@@ -1,0 +1,20 @@
+{
+  "name": "canvasgame-rust-web",
+  "version": "0.1.0",
+  "description": "CanvasGame re-written in rust WASM",
+  "main": "index.js",
+  "scripts": {
+    "build": "webpack --config webpack.config.js",
+    "start": "webpack-dev-server"
+  },
+  "devDependencies": {
+    "hello-wasm-pack": "^0.1.0",
+    "webpack": "^4.43.0",
+    "webpack-cli": "^3.3.11",
+    "webpack-dev-server": "^3.10.3",
+    "copy-webpack-plugin": "^5.1.1"
+  },
+  "dependencies": {
+    "canvasgame-rust": "file:../pkg"
+  }
+}
