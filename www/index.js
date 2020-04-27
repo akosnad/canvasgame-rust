@@ -1,6 +1,5 @@
 import * as wasm from "canvasgame-rust";
 
-wasm.init();
 
 let canvas = document.getElementById('game-canvas');
 canvas.width = window.innerWidth;
@@ -11,10 +10,6 @@ window.addEventListener('resize', () => {
     canvas.height = window.innerHeight;
 });
 
-let ctx = canvas.getContext('2d');
-function renderLoop() {
-    wasm.render_loop(ctx);
-    window.requestAnimationFrame(renderLoop);
-}
 
-renderLoop();
+let ctx = canvas.getContext('2d');
+wasm.init(ctx);
