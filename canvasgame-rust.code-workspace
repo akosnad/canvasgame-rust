@@ -1,0 +1,49 @@
+{
+    "folders": [
+        {
+            "path": ".",
+            "name": "canvasgame-rust"
+        },
+        {
+            "path": "www",
+            "name": "canvasgame-rust-web"
+        }
+    ],
+    "settings": {
+        "files.exclude": {
+            "**/.git": true,
+            "**/.svn": true,
+            "**/.hg": true,
+            "**/CVS": true,
+            "**/.DS_Store": true
+        }
+    },
+    "launch": {
+        "configurations": [],
+        "compounds": [{
+            "name": "Build & launch Firefox",
+            "configurations": [
+                "Launch Firefox"
+            ],
+            "preLaunchTask": "Wasm pack"
+        }]
+    },
+    "tasks": {
+        "version": "2.0.0",
+        "tasks": [
+            {
+                "label": "Wasm pack",
+                "command": "wasm-pack",
+                "type": "shell",
+                "args": ["build"],
+                "problemMatcher": [
+                    "$rustc"
+                ],
+                "presentation": {
+                    "reveal": "silent"
+                },
+                "group": "build"
+            }
+        ]
+    }
+}
