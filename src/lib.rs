@@ -1,10 +1,9 @@
-#![feature(const_fn)]
-
-
 mod utils;
 mod engine;
 
 use wasm_bindgen::prelude::*;
+use lazy_static::*;
+use std::sync::{Arc, Mutex};
 
 // When the `wee_alloc` feature is enabled, use `wee_alloc` as the global
 // allocator.
@@ -12,8 +11,12 @@ use wasm_bindgen::prelude::*;
 #[global_allocator]
 static ALLOC: wee_alloc::WeeAlloc = wee_alloc::WeeAlloc::INIT;
 
+lazy_static! {
+    static ref ENGINE: Arc<Mutex<engine::Engine>> = Arc::new(Mutex::new(engine::Engine::new()));
+}
+
 #[wasm_bindgen]
-pub fn init(ctx: web_sys::CanvasRenderingContext2d) {
+pub fn init() {
     utils::set_panic_hook();
     engine::init_loop();
 }

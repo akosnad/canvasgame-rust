@@ -11,5 +11,4 @@ window.addEventListener('resize', () => {
 });
 
 
-let ctx = canvas.getContext('2d');
-wasm.init(ctx);
+ wasm.init();

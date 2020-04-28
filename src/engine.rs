@@ -37,22 +37,47 @@ fn context() -> web_sys::CanvasRenderingContext2d {
         .expect("can't convert ctx")
 }
 
+pub struct Engine {
+    canvas: web_sys::HtmlCanvasElement,
+    ctx: web_sys::CanvasRenderingContext2d,
+    x: f64,
+    ftime: f64,
+}
+
+unsafe impl Send for Engine {}
+
+impl Engine {
+    pub fn new() -> Engine {
+        Engine {
+            canvas: canvas(),
+            ctx: context(),
+            x: 50.,
+            ftime: 0.,
+        }
+    }
+    fn render_loop(&mut self) {
+        let frame_start = js_sys::Date::now();
+
+        self.ctx.set_fill_style(&"black".into());
+        self.ctx.fill_rect(0., 0., self.canvas.width() as f64, self.canvas.height() as f64);
+
+        self.ctx.set_fill_style(&"white".into());
+        self.ctx.set_font(&"2em serif");
+        self.ctx
+            .fill_text(&format!("ftime: {}", self.ftime), 10., 100.)
+            .unwrap();
+
+        let frame_end = js_sys::Date::now();
+        self.ftime = frame_end - frame_start;
+    }
+}
+
 pub fn init_loop() {
     let f = Rc::new(RefCell::new(None));
     let g = f.clone();
-
-    let mut x = 0.;
     *g.borrow_mut() = Some(Closure::wrap(Box::new(move || {
-        let mut c = context();
-        c.set_stroke_style(&"white".into());
-        c.begin_path();
-        c.move_to(0., 0.);
-        c.line_to(x, x);
-        c.close_path();
-        c.stroke();
-        x += 1.;
+        super::ENGINE.lock().unwrap().render_loop();
         request_animation_frame(f.borrow().as_ref().unwrap());
     }) as Box<dyn FnMut()>));
-
     request_animation_frame(g.borrow().as_ref().unwrap());
 }
