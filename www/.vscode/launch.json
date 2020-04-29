@@ -11,7 +11,13 @@
             "reAttach": true,
             "webRoot": "${workspaceFolder}/www",
             "url": "http://localhost:8080/",
-            "preLaunchTask": "webpack dev server"
+            "preLaunchTask": "webpack dev server",
+            "pathMappings": [
+                {
+                    "url": "webpack:///node_modules/strip-ansi",
+                    "path": "${workspaceFolder}"
+                }
+            ]
         }
     ]
 }

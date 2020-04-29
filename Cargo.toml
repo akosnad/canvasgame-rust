@@ -37,7 +37,8 @@ features = [
     "Element",
     "HtmlCanvasElement",
     "Window",
-    "console"
+    "console",
+    "KeyboardEvent"
 ]
 
 [dev-dependencies]

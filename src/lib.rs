@@ -1,5 +1,8 @@
+#![feature(type_ascription)]
+
 mod utils;
 mod engine;
+mod world;
 
 use wasm_bindgen::prelude::*;
 use lazy_static::*;
@@ -12,7 +15,8 @@ use std::sync::{Arc, Mutex};
 static ALLOC: wee_alloc::WeeAlloc = wee_alloc::WeeAlloc::INIT;
 
 lazy_static! {
-    static ref ENGINE: Arc<Mutex<engine::Engine>> = Arc::new(Mutex::new(engine::Engine::new()));
+    static ref ENGINE: Arc<Mutex<engine::Engine>> = Arc::new(Mutex::new(
+        engine::Engine::new(world::World::new())));
 }
 
 #[wasm_bindgen]

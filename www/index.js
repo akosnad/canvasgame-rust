@@ -10,5 +10,12 @@ window.addEventListener('resize', () => {
     canvas.height = window.innerHeight;
 });
 
+window.addEventListener('keydown', e => {
+    wasm.key_down(e);
+});
+
+window.addEventListener('keyup', e => {
+    wasm.key_up(e);
+})
 
  wasm.init();
