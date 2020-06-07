@@ -135,7 +135,7 @@ pub struct Entity {
 }
 
 impl Entity {
-    fn new() -> Entity {
+    pub fn new() -> Entity {
         Entity {
             pos: Coord::origin(),
             hitbox: Region::default_hitbox(),
@@ -143,18 +143,18 @@ impl Entity {
             in_air: false,
         }
     }
-    fn render(&self, ctx: &CanvasRenderingContext2d, _z_boundary: (f64, f64), canvas_center: (f64, f64)) {
+    fn render(&self, ctx: &CanvasRenderingContext2d, _z_boundary: (f64, f64), canvas_center: (f64, f64), offset: (f64, f64)) {
         let size_mult = 1. / (self.hitbox.start.z / (self.pos.z + self.hitbox.start.z));
         let opacity = 100. * (self.hitbox.start.z / (self.pos.z + self.hitbox.start.z));
-        ctx.set_fill_style(&"white".into());
-        ctx.set_font(&"2em serif");
-        ctx.fill_text(&format!("size_mult: {:3.10} opacity: {:1.5}", size_mult, opacity), 10., 200.).unwrap();
+        // ctx.set_fill_style(&"white".into());
+        // ctx.set_font(&"2em serif");
+        // ctx.fill_text(&format!("size_mult: {:3.10} opacity: {:1.5}", size_mult, opacity), 10., 200.).unwrap();
 
         ctx.set_fill_style(&format!("rgba(0, 0, 255, {}%)", opacity).into());
-        let x = canvas_center.0 + self.pos.x + (self.hitbox.start.x * size_mult);
-        let y = canvas_center.1 + self.pos.y + (self.hitbox.start.y * size_mult);
-        let w = canvas_center.0 + self.pos.x + (self.hitbox.end.x * size_mult) - x;
-        let h = canvas_center.1 + self.pos.y + (self.hitbox.end.y * size_mult) - y;
+        let x = canvas_center.0 + self.pos.x - offset.0 + (self.hitbox.start.x * size_mult);
+        let y = canvas_center.1 + self.pos.y - offset.1 + (self.hitbox.start.y * size_mult);
+        let w = canvas_center.0 + self.pos.x - offset.0 + (self.hitbox.end.x * size_mult) - x;
+        let h = canvas_center.1 + self.pos.y - offset.1 + (self.hitbox.end.y * size_mult) - y;
         ctx.fill_rect(x, y, w, h);
     }
 
@@ -188,12 +188,12 @@ impl Player {
             entity: Entity::new(),
         }
     }
-    fn render(&self, ctx: &CanvasRenderingContext2d, z_boundary: (f64, f64), canvas_center: (f64, f64)) {
-        self.entity.render(ctx, z_boundary, canvas_center);
+    fn render(&self, ctx: &CanvasRenderingContext2d, z_boundary: (f64, f64), canvas_center: (f64, f64), offset: (f64, f64)) {
+        self.entity.render(ctx, z_boundary, canvas_center, offset);
 
         ctx.set_fill_style(&"white".into());
         ctx.set_font(&"2em serif");
-        ctx.fill_text(&format!("pos: x: {:3.3} y: {:3.3} z: {:3.3}", self.entity.pos.x, self.entity.pos.y, self.entity.pos.z), 200., 100.).unwrap();
+        ctx.fill_text(&format!("pos: x: {:3.3} y: {:3.3} z: {:3.3} offset: {:3.3}, {:3.3}", self.entity.pos.x, self.entity.pos.y, self.entity.pos.z, offset.0, offset.1), 200., 100.).unwrap();
     }
     fn tick(&mut self) {
         unsafe {
@@ -211,6 +211,10 @@ pub struct World {
     pub player: Player,
     pub entities: Vec<Entity>,
     pub boundary: Region,
+    /// Screen scroll amount relative to world origin (x, y)
+    scroll: (f64, f64),
+    /// Start scrolling screen when player hits given distance to canvas border (in percent)
+    pub scroll_threshold: f64,
 }
 
 impl World {
@@ -219,12 +223,28 @@ impl World {
             player: Player::new(),
             entities: Vec::new(),
             boundary: Region::default_boundary(),
+            scroll: (0.0, 0.0),
+            scroll_threshold: 0.85,
         }
     }
-    pub fn render(&mut self, ctx: &CanvasRenderingContext2d, canvas_center: (f64, f64)) {
-        self.player.render(&ctx, (self.boundary.start.z, self.boundary.end.z), canvas_center: (f64, f64));
+    fn scroll(&mut self, canvas_center: (f64, f64), canvas_size: (f64, f64)) {
+        if self.player.entity.pos.x - self.scroll.0 + canvas_center.0 > canvas_size.0 * self.scroll_threshold {
+            self.scroll.0 += self.player.entity.pos.x - self.scroll.0 + canvas_center.0 - canvas_size.0 * self.scroll_threshold;
+        } else if self.player.entity.pos.x - self.scroll.0 + canvas_center.0 < canvas_size.0 * (1.0 - self.scroll_threshold) {
+            self.scroll.0 += self.player.entity.pos.x - self.scroll.0 + canvas_center.0 - canvas_size.0 * (1.0 - self.scroll_threshold);
+        }
+
+        if self.player.entity.pos.y - self.scroll.1 + canvas_center.1 > canvas_size.1 * self.scroll_threshold {
+            self.scroll.1 += self.player.entity.pos.y - self.scroll.1 + canvas_center.1 - canvas_size.1 * self.scroll_threshold;
+        } else if self.player.entity.pos.y - self.scroll.1 + canvas_center.1 < canvas_size.1 * (1.0 - self.scroll_threshold) {
+            self.scroll.1 += self.player.entity.pos.y - self.scroll.1 + canvas_center.1 - canvas_size.1 * (1.0 - self.scroll_threshold);
+        }
+    }
+    pub fn render(&mut self, ctx: &CanvasRenderingContext2d, canvas_center: (f64, f64), canvas_size: (f64, f64)) {
+        self.scroll(canvas_center, canvas_size);
+        self.player.render(&ctx, (self.boundary.start.z, self.boundary.end.z), canvas_center, self.scroll);
         for entity in self.entities.iter_mut() {
-            entity.render(&ctx, (self.boundary.start.z, self.boundary.end.z), canvas_center: (f64, f64));
+            entity.render(&ctx, (self.boundary.start.z, self.boundary.end.z), canvas_center, self.scroll);
         }
     }
     pub fn tick(&mut self) {

@@ -2,8 +2,6 @@ use wasm_bindgen::prelude::*;
 use wasm_bindgen::JsCast;
 use std::cell::RefCell;
 use std::rc::Rc;
-use std::string::String;
-use super::world::{World, Velocity, Coord};
 
 fn window() -> web_sys::Window {
     web_sys::window().expect("no global `window` exists")
@@ -43,7 +41,7 @@ pub struct Engine {
     canvas: web_sys::HtmlCanvasElement,
     ctx: web_sys::CanvasRenderingContext2d,
     ftime: f64,
-    world: super::world::World,
+    pub world: super::world::World,
 }
 
 unsafe impl Send for Engine {}
@@ -71,24 +69,7 @@ impl Engine {
             .fill_text(&format!("ftime: {}", self.ftime), 10., 100.)
             .unwrap();
 
-        let w = self.canvas.width() as f64;
-        let h = self.canvas.height() as f64;
-        let x = w / 2.;
-        let y = h / 2.;
-
-        self.ctx.set_stroke_style(&"white".into());
-
-        self.ctx.begin_path();
-        self.ctx.move_to(x, 0.);
-        self.ctx.line_to(x, h);
-        self.ctx.stroke();
-
-        self.ctx.begin_path();
-        self.ctx.move_to(0., y);
-        self.ctx.line_to(w, y);
-        self.ctx.stroke();
-
-        self.world.render(&self.ctx, self.canvas_center());
+        self.world.render(&self.ctx, self.canvas_center(), (self.canvas.width().into(), self.canvas.height().into()));
 
         let frame_end = js_sys::Date::now();
         self.ftime = frame_end - frame_start;

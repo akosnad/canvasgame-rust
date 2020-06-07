@@ -22,5 +22,10 @@ lazy_static! {
 #[wasm_bindgen]
 pub fn init() {
     utils::set_panic_hook();
+    let mut e = world::Entity::new();
+    e.pos = world::Coord {
+        x: 100.0, y: 200.0, z: 0.0,
+    };
+    ENGINE.lock().unwrap().world.entities.push(e);
     engine::init_loop();
 }
