@@ -27,7 +27,7 @@ pub fn run() {
     let mut world = world::World::new();
     world.entities.push(e);
 
-    let mut engine = engine::web::WebEngine::init(world);
+    let mut engine = engine::web::WebEngine::new(world);
 
     let f = Rc::new(RefCell::new(None));
     let g = f.clone();

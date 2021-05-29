@@ -1,10 +1,12 @@
 use super::*;
 use crate::utils::*;
 use wasm_bindgen::prelude::*;
+use wasm_bindgen::Clamped;
+use web_sys::ImageData;
 
 pub struct WebEngine {
-    canvas: web_sys::HtmlCanvasElement,
     ctx: web_sys::CanvasRenderingContext2d,
+    screen: Screen,
     ftime: f64,
     pub world: crate::world::World,
 }
@@ -12,47 +14,61 @@ pub struct WebEngine {
 unsafe impl Send for WebEngine {}
 
 impl WebEngine {
-    fn canvas_center(&self) -> (f64, f64) {
-        (
-            (self.canvas.width() / 2) as f64,
-            (self.canvas.height() / 2) as f64,
-        )
-    }
-}
-
-impl Engine for WebEngine {
-    fn init(world: crate::world::World) -> Self {
+    pub fn new(world: crate::world::World) -> Self {
         WebEngine {
-            canvas: canvas(),
             ctx: context(),
+            //            screen: Screen::new(canvas().width() as usize, canvas().height() as usize),
+            screen: Screen::new(500, 500),
             ftime: 0.,
             world: world,
         }
     }
+}
+
+impl Engine for WebEngine {
     fn engine_loop(&mut self) {
         let frame_start = js_sys::Date::now();
 
         self.world.tick();
 
-        self.ctx.set_fill_style(&"black".into());
-        self.ctx.fill_rect(
-            0.,
-            0.,
-            self.canvas.width() as f64,
-            self.canvas.height() as f64,
-        );
+        self.screen.render(&mut self.world);
+
+        let mut bitmap: Vec<u8> = vec![0; self.screen.h * self.screen.w * 4];
+        for i in (1..bitmap.len() + 1).step_by(4) {
+            let x = (i / 4) % (self.screen.w);
+            let y = (i / 4) / self.screen.h;
+            bitmap[i - 1] = self.screen.pixels[y][x].r;
+            bitmap[i + 0] = self.screen.pixels[y][x].g;
+            bitmap[i + 1] = self.screen.pixels[y][x].b;
+            bitmap[i + 2] = 255;
+        }
+        let image = ImageData::new_with_u8_clamped_array_and_sh(
+            Clamped(bitmap.as_mut_slice()),
+            self.screen.w as u32,
+            self.screen.h as u32,
+        )
+        .unwrap();
+        self.ctx.put_image_data(&image, 0., 0.).unwrap();
 
         self.ctx.set_fill_style(&"white".into());
-        self.ctx.set_font(&"2em serif");
+        self.ctx.set_font(&"10px monospace");
         self.ctx
-            .fill_text(&format!("ftime: {}", self.ftime), 10., 100.)
+            .fill_text(&format!("ftime: {}", self.ftime), 10., 10.)
             .unwrap();
-
-        self.world.render(
-            &self.ctx,
-            self.canvas_center(),
-            (self.canvas.width().into(), self.canvas.height().into()),
-        );
+        self.ctx
+            .fill_text(
+                &format!(
+                    "pos: x: {:3.3} y: {:3.3} z: {:3.3} scroll: {:3.3}, {:3.3}",
+                    self.world.player.entity.pos.x,
+                    self.world.player.entity.pos.y,
+                    self.world.player.entity.pos.z,
+                    self.world.scroll.0,
+                    self.world.scroll.1
+                ),
+                10.,
+                30.,
+            )
+            .unwrap();
 
         let frame_end = js_sys::Date::now();
         self.ftime = frame_end - frame_start;
