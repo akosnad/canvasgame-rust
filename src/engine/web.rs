@@ -33,14 +33,14 @@ impl Engine for WebEngine {
 
         self.screen.render(&mut self.world);
 
-        let mut bitmap: Vec<u8> = vec![0; self.screen.h * self.screen.w * 4];
-        for i in (1..bitmap.len() + 1).step_by(4) {
-            let x = (i / 4) % (self.screen.w);
-            let y = (i / 4) / self.screen.h;
-            bitmap[i - 1] = self.screen.pixels[y][x].r;
-            bitmap[i + 0] = self.screen.pixels[y][x].g;
-            bitmap[i + 1] = self.screen.pixels[y][x].b;
-            bitmap[i + 2] = 255;
+        // We don't care about alpha channel (yet?)
+        // so we need to convert our screen buffer...
+        let mut bitmap: Vec<u8> = Vec::with_capacity(self.screen.w * self.screen.h * 4);
+        for i in 1..(self.screen.pixels.len() + 1) {
+            bitmap.push(self.screen.pixels[i - 1]);
+            if i % 3 == 0 {
+                bitmap.push(255);
+            }
         }
         let image = ImageData::new_with_u8_clamped_array_and_sh(
             Clamped(bitmap.as_mut_slice()),
