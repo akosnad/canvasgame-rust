@@ -2,9 +2,17 @@
 
 
 fn main() {
-    use canvasgame_rust::engine::Engine;
+    use canvasgame_rust::engine::{Engine, native::NativeEngine};
+    use canvasgame_rust::world::*;
 
-    let world = canvasgame_rust::world::World::new();
-    let mut engine = canvasgame_rust::engine::native::NativeEngine::new(world);
+    let mut world = World::new();
+    let mut e = Entity::new();
+    e.pos = Coord {
+        x: 100.0,
+        y: 200.0,
+        z: 5.0,
+    };
+    world.entities.push(e);
+    let mut engine = NativeEngine::new(world);
     engine.engine_loop();
 }
