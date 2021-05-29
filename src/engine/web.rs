@@ -1,54 +1,21 @@
+use super::*;
 use wasm_bindgen::prelude::*;
-use wasm_bindgen::JsCast;
 use std::cell::RefCell;
 use std::rc::Rc;
+use crate::utils::*;
 
-fn window() -> web_sys::Window {
-    web_sys::window().expect("no global `window` exists")
-}
-
-fn document() -> web_sys::Document {
-    window()
-        .document()
-        .expect("should have a document on a window")
-}
-
-fn request_animation_frame(f: &Closure<dyn FnMut()>) {
-    window()
-        .request_animation_frame(f.as_ref().unchecked_ref())
-        .expect("should register `requestAnimationFrame` OK");
-}
-
-fn canvas() -> web_sys::HtmlCanvasElement {
-    document()
-        .get_element_by_id("game-canvas")
-        .expect("no game canvas")
-        .dyn_into::<web_sys::HtmlCanvasElement>()
-        .map_err(|_| ())
-        .unwrap()
-}
-
-fn context() -> web_sys::CanvasRenderingContext2d {
-    canvas()
-        .get_context("2d")
-        .expect("canvas should have 2d context")
-        .unwrap()
-        .dyn_into::<web_sys::CanvasRenderingContext2d>()
-        .expect("can't convert ctx")
-}
-
-pub struct Engine {
+pub struct WebEngine {
     canvas: web_sys::HtmlCanvasElement,
     ctx: web_sys::CanvasRenderingContext2d,
     ftime: f64,
-    pub world: super::world::World,
+    pub world: crate::world::World,
 }
 
-unsafe impl Send for Engine {}
+unsafe impl Send for WebEngine {}
 
-impl Engine {
-    pub fn new(world: super::world::World) -> Engine {
-        Engine {
+impl WebEngine {
+    pub fn new(world: crate::world::World) -> Self {
+        Self {
             canvas: canvas(),
             ctx: context(),
             ftime: 0.,
@@ -89,27 +56,11 @@ pub fn init_loop() {
     let f = Rc::new(RefCell::new(None));
     let g = f.clone();
     *g.borrow_mut() = Some(Closure::wrap(Box::new(move || {
-        super::ENGINE.lock().unwrap().render_loop();
+        crate::ENGINE.lock().unwrap().render_loop();
         request_animation_frame(f.borrow().as_ref().unwrap());
     }) as Box<dyn FnMut()>));
     request_animation_frame(g.borrow().as_ref().unwrap());
 }
-
-pub struct MovementKeys {
-    pub up: bool,
-    pub down: bool,
-    pub left: bool,
-    pub right: bool,
-    pub jump: bool
-}
-
-pub static mut MOVEMENT_KEYS: MovementKeys = MovementKeys {
-    up: false,
-    down: false,
-    left: false,
-    right: false,
-    jump: false,
-};
 
 #[wasm_bindgen]
 pub fn key_down(e: web_sys::KeyboardEvent) {

@@ -14,6 +14,10 @@
             "preLaunchTask": "webpack dev server",
             "pathMappings": [
                 {
+                    "url": "webpack:///index.js",
+                    "path": "${workspaceFolder}/index.js"
+                },
+                {
                     "url": "webpack:///node_modules/strip-ansi",
                     "path": "${workspaceFolder}"
                 }
