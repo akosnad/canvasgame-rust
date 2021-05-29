@@ -3,6 +3,9 @@ use crate::world::{World, Entity};
 #[cfg(target_arch = "wasm32")]
 pub mod web;
 
+#[cfg(not(target_arch = "wasm32"))]
+pub mod native;
+
 #[derive(Clone)]
 struct Screen {
     ///A buffer with 3 * 8 bytes per pixel

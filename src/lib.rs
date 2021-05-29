@@ -1,7 +1,7 @@
 #![feature(type_ascription)]
 
-mod engine;
-mod world;
+pub mod engine;
+pub mod world;
 
 #[cfg(target_arch = "wasm32")]
 mod wasm_utils;
