@@ -18,4 +18,4 @@ window.addEventListener('keyup', e => {
     wasm.key_up(e);
 })
 
- wasm.init();
+ wasm.run();

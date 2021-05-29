@@ -20,7 +20,7 @@ pub static mut MOVEMENT_KEYS: MovementKeys = MovementKeys {
 
 
 pub trait Engine {
-    fn init(world: &World);
-    fn start();
+    fn init(world: World) -> Self;
+    fn engine_loop(&mut self);
 }
 
