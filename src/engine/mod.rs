@@ -1,5 +1,6 @@
 use crate::world::{World, Entity};
 
+#[cfg(target_arch = "wasm32")]
 pub mod web;
 
 #[derive(Clone)]

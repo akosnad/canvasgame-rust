@@ -1,5 +1,5 @@
 use super::*;
-use crate::utils::*;
+use crate::wasm_utils::*;
 use wasm_bindgen::prelude::*;
 use wasm_bindgen::Clamped;
 use web_sys::ImageData;

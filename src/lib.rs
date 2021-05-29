@@ -1,28 +1,33 @@
 #![feature(type_ascription)]
 
-mod utils;
 mod engine;
 mod world;
 
-use crate::engine::Engine;
-use wasm_bindgen::prelude::*;
-use crate::utils::*;
-use std::cell::RefCell;
-use std::rc::Rc;
+#[cfg(target_arch = "wasm32")]
+mod wasm_utils;
 
+#[cfg(target_arch = "wasm32")]
+use {
+    crate::engine::Engine, crate::wasm_utils::*, std::cell::RefCell, std::rc::Rc,
+    wasm_bindgen::prelude::*,
+};
 
 // When the `wee_alloc` feature is enabled, use `wee_alloc` as the global
 // allocator.
+#[cfg(target_arch = "wasm32")]
 #[cfg(feature = "wee_alloc")]
 #[global_allocator]
 static ALLOC: wee_alloc::WeeAlloc = wee_alloc::WeeAlloc::INIT;
 
+#[cfg(target_arch = "wasm32")]
 #[wasm_bindgen]
 pub fn run() {
-    utils::set_panic_hook();
+    wasm_utils::set_panic_hook();
     let mut e = world::Entity::new();
     e.pos = world::Coord {
-        x: 100.0, y: 200.0, z: 5.0,
+        x: 100.0,
+        y: 200.0,
+        z: 5.0,
     };
     let mut world = world::World::new();
     world.entities.push(e);
