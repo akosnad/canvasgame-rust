@@ -23,6 +23,23 @@ impl WebEngine {
             world: world,
         }
     }
+    fn dump(&self) {
+        #[cfg(feature = "dump_log")]
+        self.ctx
+            .fill_text(
+                &format!(
+                    "pos: x: {:3.3} y: {:3.3} z: {:3.3} scroll: {:3.3}, {:3.3}",
+                    self.world.player.entity.pos.x,
+                    self.world.player.entity.pos.y,
+                    self.world.player.entity.pos.z,
+                    self.world.scroll.0,
+                    self.world.scroll.1
+                ),
+                10.,
+                30.,
+            )
+            .unwrap();
+    }
 }
 
 impl Engine for WebEngine {
@@ -55,20 +72,8 @@ impl Engine for WebEngine {
         self.ctx
             .fill_text(&format!("ftime: {}", self.ftime), 10., 10.)
             .unwrap();
-        self.ctx
-            .fill_text(
-                &format!(
-                    "pos: x: {:3.3} y: {:3.3} z: {:3.3} scroll: {:3.3}, {:3.3}",
-                    self.world.player.entity.pos.x,
-                    self.world.player.entity.pos.y,
-                    self.world.player.entity.pos.z,
-                    self.world.scroll.0,
-                    self.world.scroll.1
-                ),
-                10.,
-                30.,
-            )
-            .unwrap();
+
+        self.dump();
 
         let frame_end = js_sys::Date::now();
         self.ftime = frame_end - frame_start;

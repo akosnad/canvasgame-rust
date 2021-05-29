@@ -26,6 +26,18 @@ impl NativeEngine {
             window_buffer: vec![0; WIDTH * HEIGHT],
         }
     }
+
+    fn dump(&self) {
+        #[cfg(feature = "dump_log")]
+        println!(
+            "pos: x: {:3.3} y: {:3.3} z: {:3.3} scroll: {:3.3}, {:3.3}",
+            self.world.player.entity.pos.x,
+            self.world.player.entity.pos.y,
+            self.world.player.entity.pos.z,
+            self.world.scroll.0,
+            self.world.scroll.1
+        );
+    }
 }
 
 impl Engine for NativeEngine {
@@ -51,6 +63,7 @@ impl Engine for NativeEngine {
 
         self.world.tick();
         self.screen.render(&mut self.world);
+        self.dump();
 
         for i in 0..WIDTH * HEIGHT {
             let j = i * 3;
