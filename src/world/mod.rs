@@ -1,5 +1,8 @@
 use super::engine::{MOVEMENT_KEYS};
 
+#[cfg(feature = "alloc")]
+use alloc::vec::Vec;
+
 /// Coordinate relative to middle of screen
 #[derive(Debug, PartialEq)]
 pub struct Coord {
@@ -45,6 +48,8 @@ impl Clone for Coord {
         *self
     }
 }
+
+#[cfg(not(feature = "no_std"))]
 impl std::ops::Add for Coord {
     type Output = Self;
     fn add(self, other: Self) -> Self {
@@ -55,6 +60,8 @@ impl std::ops::Add for Coord {
         }
     }
 }
+
+#[cfg(not(feature = "no_std"))]
 impl std::ops::Sub for Coord {
     type Output = Self;
     fn sub(self, other: Self) -> Self {
@@ -65,6 +72,31 @@ impl std::ops::Sub for Coord {
         }
     }
 }
+
+#[cfg(feature = "no_std")]
+impl core::ops::Add for Coord {
+    type Output = Self;
+    fn add(self, other: Self) -> Self {
+        Self {
+            x: self.x + other.x,
+            y: self.y + other.y,
+            z: self.z + other.z,
+        }
+    }
+}
+
+#[cfg(feature = "no_std")]
+impl core::ops::Sub for Coord {
+    type Output = Self;
+    fn sub(self, other: Self) -> Self {
+        Self {
+            x: self.x - other.x,
+            y: self.y - other.y,
+            z: self.z - other.z,
+        }
+    }
+}
+
 
 pub struct Region {
     /// Top left coordinate relative to origin

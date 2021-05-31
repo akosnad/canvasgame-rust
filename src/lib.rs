@@ -1,4 +1,8 @@
 #![feature(type_ascription)]
+#![cfg_attr(feature = "no_std", no_std)]
+
+#[cfg(feature = "alloc")]
+extern crate alloc;
 
 pub mod engine;
 pub mod world;

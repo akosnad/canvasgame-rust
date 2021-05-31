@@ -1,10 +1,17 @@
+#[cfg(feature = "alloc")]
+use alloc::{vec, vec::Vec};
+
 use crate::world::{World, Entity};
 
 #[cfg(target_arch = "wasm32")]
 pub mod web;
 
 #[cfg(not(target_arch = "wasm32"))]
+#[cfg(not(feature = "no_std"))]
 pub mod native;
+
+#[cfg(feature = "no_std")]
+pub mod bare;
 
 #[derive(Clone)]
 struct Screen {
