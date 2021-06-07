@@ -12,7 +12,7 @@ mod wasm_utils;
 
 #[cfg(target_arch = "wasm32")]
 use {
-    crate::engine::Engine, crate::wasm_utils::*, std::cell::RefCell, std::rc::Rc,
+    crate::wasm_utils::*, std::cell::RefCell, std::rc::Rc,
     wasm_bindgen::prelude::*,
 };
 
@@ -41,7 +41,7 @@ pub fn run() {
     let f = Rc::new(RefCell::new(None));
     let g = f.clone();
     *g.borrow_mut() = Some(Closure::wrap(Box::new(move || {
-        engine.engine_loop();
+        engine.engine_cycle();
         request_animation_frame(f.borrow().as_ref().unwrap());
     }) as Box<dyn FnMut()>));
     request_animation_frame(g.borrow().as_ref().unwrap());

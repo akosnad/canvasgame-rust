@@ -1,12 +1,10 @@
 use super::*;
 use crate::wasm_utils::*;
 use wasm_bindgen::prelude::*;
-use wasm_bindgen::Clamped;
-use web_sys::ImageData;
 
 pub struct WebEngine {
     ctx: web_sys::CanvasRenderingContext2d,
-    screen: Screen,
+    canvas: web_sys::HtmlCanvasElement,
     ftime: f64,
     pub world: crate::world::World,
 }
@@ -18,7 +16,7 @@ impl WebEngine {
         WebEngine {
             ctx: context(),
             //            screen: Screen::new(canvas().width() as usize, canvas().height() as usize),
-            screen: Screen::new(500, 500),
+            canvas: canvas(),
             ftime: 0.,
             world: world,
         }
@@ -40,32 +38,12 @@ impl WebEngine {
             )
             .unwrap();
     }
-}
-
-impl Engine for WebEngine {
-    fn engine_loop(&mut self) {
+    pub fn engine_cycle(&mut self) {
         let frame_start = js_sys::Date::now();
 
         self.world.tick();
 
-        self.screen.render(&mut self.world);
-
-        // We don't care about alpha channel (yet?)
-        // so we need to convert our screen buffer...
-        let mut bitmap: Vec<u8> = Vec::with_capacity(self.screen.w * self.screen.h * 4);
-        for i in 1..(self.screen.pixels.len() + 1) {
-            bitmap.push(self.screen.pixels[i - 1]);
-            if i % 3 == 0 {
-                bitmap.push(255);
-            }
-        }
-        let image = ImageData::new_with_u8_clamped_array_and_sh(
-            Clamped(bitmap.as_mut_slice()),
-            self.screen.w as u32,
-            self.screen.h as u32,
-        )
-        .unwrap();
-        self.ctx.put_image_data(&image, 0., 0.).unwrap();
+        self.render();
 
         self.ctx.set_fill_style(&"white".into());
         self.ctx.set_font(&"10px monospace");
@@ -77,6 +55,31 @@ impl Engine for WebEngine {
 
         let frame_end = js_sys::Date::now();
         self.ftime = frame_end - frame_start;
+    }
+
+}
+
+impl Engine for WebEngine {
+    fn clear(&self) {
+        self.ctx.set_fill_style(&"black".into());
+        self.ctx.fill_rect(0., 0., self.canvas.width() as f64, self.canvas.height() as f64);
+    }
+    fn set(&self, idx: usize, color: (u8, u8, u8)) {
+        //TODO: probably use x and y instead of an index, which is unnecessary
+        //      on the web engine, since the `CanvasRenderingContext2d` uses coordinates
+    }
+    fn fill_rect(&self, x: usize, y: usize, w: usize, h: usize, color: (u8, u8, u8)) {
+        self.ctx.set_fill_style(&format!("rgb({} {} {})", color.0, color.1, color.2).as_str().into());
+        self.ctx.fill_rect(x as f64, y as f64, w as f64, h as f64);
+
+    }
+    fn render(&mut self) {
+        self.clear();
+        self.world.scroll(self.center(), (self.canvas.width() as f64, self.canvas.height() as f64));
+        for entity in self.world.entities.iter() {
+            self.render_entity(&entity, self.world.scroll);
+        }
+        self.render_entity(&self.world.player.entity, self.world.scroll);
     }
 }
 
