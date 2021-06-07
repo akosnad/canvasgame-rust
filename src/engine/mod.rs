@@ -15,13 +15,15 @@ pub mod bare;
 
 #[derive(Clone)]
 struct Screen {
-    ///A buffer with 3 * 8 bytes per pixel
+    ///A buffer with 3 * (1 byte per pixel)
     /// 
     /// A pixel consits of the base RGB colors, each being a u8 value.
-    /// So, the vector is initialized like:
-    /// `vec![0; w * h * 3]`
+    /// So, the vector sould have the capacity:
+    /// `width * height * 3`
     pixels: Vec<u8>,
+    /// Width in pixel count
     w: usize,
+    /// Height in pixel count
     h: usize,
 }
 

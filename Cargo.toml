@@ -8,7 +8,7 @@ edition = "2018"
 crate-type = ["cdylib", "rlib"]
 
 [features]
-default = ["console_error_panic_hook", "minifb"]
+default = ["console_error_panic_hook", "gameloop", "minifb"]
 dump_log = []
 no_std = []
 alloc = ["no_std"]
@@ -48,5 +48,5 @@ wasm-bindgen-test = "0.3.10"
 opt-level = "s"
 
 [target.'cfg(not(target_arch = "wasm32"))'.dependencies]
-gameloop = "0.2"
+gameloop = {version = "0.2", optional = true }
 minifb = {version = "0.19", optional = true }
