@@ -1,16 +1,16 @@
 use super::*;
 use gameloop::{FrameAction, GameLoop};
 use minifb::{Key, Window, WindowOptions};
+use std::sync::Mutex;
 
-const WIDTH: usize = 640;
-const HEIGHT: usize = 480;
+lazy_static::lazy_static! {
+    static ref WINDOW_BUFFER: Mutex<Vec<u32>> = Mutex::new(vec![0; WIDTH * HEIGHT]);
+}
 
 pub struct NativeEngine {
-    screen: Screen,
-    pub window: Window,
-    window_buffer: Vec<u32>,
-    game_loop: GameLoop,
     pub world: crate::world::World,
+    pub window: Window,
+    game_loop: GameLoop,
 }
 
 impl NativeEngine {
@@ -21,11 +21,9 @@ impl NativeEngine {
         window.limit_update_rate(None);
 
         Self {
-            screen: Screen::new(WIDTH, HEIGHT),
             world: world,
             window: window,
             game_loop: GameLoop::new(60, 10).expect("Failed to init game_loop"),
-            window_buffer: vec![0; WIDTH * HEIGHT],
         }
     }
 
@@ -41,27 +39,27 @@ impl NativeEngine {
             _interpolation,
         );
     }
-}
 
-impl Engine for NativeEngine {
-    fn engine_loop(&mut self) {
+    pub fn engine_loop(&mut self) {
+        let mut needs_render = false;
+        let mut interpolation = 0.0;
         loop {
+            if needs_render {
+                needs_render = false;
+                self.render();
+
+                self.dump(interpolation);
+                let buf = WINDOW_BUFFER.lock().unwrap();
+                self.window
+                    .update_with_buffer(&buf, WIDTH, HEIGHT)
+                    .unwrap();
+            }
+
             for action in self.game_loop.actions() {
                 match action {
-                    FrameAction::Render { interpolation } => {
-                        self.screen.render(&mut self.world);
-
-                        for i in 0..WIDTH * HEIGHT {
-                            let j = i * 3;
-                            let r = (self.screen.pixels[j + 0] as u32) << 16;
-                            let g = (self.screen.pixels[j + 1] as u32) << 8;
-                            let b = self.screen.pixels[j + 2] as u32;
-                            self.window_buffer[i] = r + g + b;
-                        }
-                        self.dump(interpolation);
-                        self.window
-                            .update_with_buffer(&self.window_buffer, WIDTH, HEIGHT)
-                            .unwrap();
+                    FrameAction::Render { interpolation: i } => {
+                        needs_render = true;
+                        interpolation = i;
                     }
 
                     FrameAction::Tick => {
@@ -92,5 +90,44 @@ impl Engine for NativeEngine {
                 }
             }
         }
+    }
+}
+
+impl Engine for NativeEngine {
+    fn clear(&self) {
+        let mut buf = WINDOW_BUFFER.lock().unwrap();
+        *buf = vec![0; WIDTH * HEIGHT];
+    }
+
+    fn set(&self, idx: usize, color: (u8, u8, u8)) {
+        let r = (color.0 as u32) << 16;
+        let g = (color.1 as u32) << 8;
+        let b =  color.2 as u32;
+        let mut buf = WINDOW_BUFFER.lock().unwrap();
+        buf[idx] = r + g + b;
+    }
+
+    fn render(&mut self) {
+        self.clear();
+        self.world.scroll(self.center(), (WIDTH as f64, HEIGHT as f64));
+        for entity in self.world.entities.iter() {
+            self.render_entity(&entity, self.world.scroll);
+        }
+        self.render_entity(&self.world.player.entity, self.world.scroll);
+    }
+
+    fn render_entity(&self, entity: &Entity, offset: (f64, f64)) {
+        let size_mult = 1. / (entity.hitbox.start.z / (entity.pos.z + entity.hitbox.start.z));
+        let center = self.center();
+
+        let x = center.0 + entity.pos.x - offset.0 + (entity.hitbox.start.x * size_mult);
+        let y = center.1 + entity.pos.y - offset.1 + (entity.hitbox.start.y * size_mult);
+        let w = center.0 + entity.pos.x - offset.0 + (entity.hitbox.end.x * size_mult) - x;
+        let h = center.1 + entity.pos.y - offset.1 + (entity.hitbox.end.y * size_mult) - y;
+
+        if x < 0. || y < 0. {
+            return;
+        }
+        self.fill_rect(x as usize, y as usize, w as usize, h as usize, (0, 0, 255));
     }
 }

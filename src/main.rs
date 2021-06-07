@@ -1,8 +1,8 @@
 #![cfg(not(target_arch = "wasm32"))]
-
+#![cfg(feature = "native")]
 
 fn main() {
-    use canvasgame_rust::engine::{Engine, native::NativeEngine};
+    use canvasgame_rust::engine::native::NativeEngine;
     use canvasgame_rust::world::*;
 
     let mut world = World::new();
