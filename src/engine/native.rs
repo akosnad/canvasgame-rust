@@ -99,7 +99,7 @@ impl Engine for NativeEngine {
         *buf = vec![0; WIDTH * HEIGHT];
     }
 
-    fn set(&self, idx: usize, color: (u8, u8, u8)) {
+    fn set_at(&self, idx: usize, color: (u8, u8, u8)) {
         let r = (color.0 as u32) << 16;
         let g = (color.1 as u32) << 8;
         let b =  color.2 as u32;

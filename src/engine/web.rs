@@ -64,9 +64,10 @@ impl Engine for WebEngine {
         self.ctx.set_fill_style(&"black".into());
         self.ctx.fill_rect(0., 0., self.canvas.width() as f64, self.canvas.height() as f64);
     }
-    fn set(&self, idx: usize, color: (u8, u8, u8)) {
-        //TODO: probably use x and y instead of an index, which is unnecessary
-        //      on the web engine, since the `CanvasRenderingContext2d` uses coordinates
+    fn set_at(&self, idx: usize, color: (u8, u8, u8)) {
+        // Unused in the web engine, since the rendering context uses x and y coords,
+        // making this implementation unnecessary and would be slow.
+        panic!("'set_at' should not be called on the web engine");
     }
     fn fill_rect(&self, x: usize, y: usize, w: usize, h: usize, color: (u8, u8, u8)) {
         self.ctx.set_fill_style(&format!("rgb({} {} {})", color.0, color.1, color.2).as_str().into());

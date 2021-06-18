@@ -36,7 +36,11 @@ pub trait Engine {
     }
 
     fn clear(&self);
-    fn set(&self, idx: usize, color: (u8, u8, u8));
+    fn set_at(&self, idx: usize, color: (u8, u8, u8));
+
+    fn set(&self, x: usize, y: usize, color: (u8, u8, u8)) {
+        self.set_at(self.at(x, y), color);
+    }
 
     fn fill_rect(&self, x: usize, y: usize, w: usize, h: usize, color: (u8, u8, u8)) {
         if x > WIDTH || x+w > WIDTH
@@ -46,7 +50,7 @@ pub trait Engine {
 
         for i in x..x+w {
             for j in y..y+h {
-                self.set(self.at(i, j), color);
+                self.set(i, j, color);
             }
         }
     }
