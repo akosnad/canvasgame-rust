@@ -8,16 +8,14 @@ edition = "2018"
 crate-type = ["cdylib", "rlib"]
 
 [features]
-default = ["native"]
+default = ["native", "console_error_panic_hook"]
 native = ["gameloop", "minifb", "lazy_static"]
 bare = ["no_std", "alloc", "lazy_static"]
+
 dump_log = []
 
 no_std = []
 alloc = ["no_std", "spin"]
-
-[target.'cfg(target_arch = "wasm32")'.features]
-default = ["console_error_panic_hook"]
 
 [target.'cfg(target_arch = "wasm32")'.dependencies]
 wasm-bindgen = "0.2"
