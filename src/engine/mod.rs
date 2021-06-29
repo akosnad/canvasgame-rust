@@ -12,39 +12,34 @@ pub mod native;
 #[cfg(feature = "bare")]
 pub mod bare;
 
-// TODO: Use a proper window resizing mechanism
-//       and use these as an initial window size?
-const WIDTH: usize = 640;
-const HEIGHT: usize = 480;
-
 pub trait Engine {
-    /// Returns the x and y coordinates on-screen based on the buffer index.
-    fn coords(&self, idx: usize) -> (usize, usize) {
-        (
-            (idx / 3) % WIDTH,
-            (idx / 3) / HEIGHT
-        )
-    }
+    fn width(&self) -> usize;
+    fn height(&self) -> usize;
+
+    #[inline]
     fn at(&self, x: usize, y: usize) -> usize {
-        y * WIDTH + x
+        y * self.width() + x
     }
+    #[inline]
     fn center(&self) -> (f64, f64) {
         (
-            (WIDTH as f64) / 2.,
-            (HEIGHT as f64) / 2.
+            (self.width()  as f64) / 2.,
+            (self.height() as f64) / 2.
         )
     }
 
     fn clear(&self);
     fn set_at(&self, idx: usize, color: (u8, u8, u8));
 
+    #[inline]
     fn set(&self, x: usize, y: usize, color: (u8, u8, u8)) {
         self.set_at(self.at(x, y), color);
     }
 
     fn fill_rect(&self, x: usize, y: usize, w: usize, h: usize, color: (u8, u8, u8)) {
-        if x > WIDTH || x+w > WIDTH
-        || y > HEIGHT || y+h > HEIGHT {
+        let (gw, gh) = (self.width(), self.height());
+        if x > gw || x+w > gw
+        || y > gh || y+h > gh {
             return;
         }
 

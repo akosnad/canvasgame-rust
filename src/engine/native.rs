@@ -3,8 +3,11 @@ use gameloop::{FrameAction, GameLoop};
 use minifb::{Key, Window, WindowOptions};
 use std::sync::Mutex;
 
+const INITIAL_WIDTH: usize = 640;
+const INITIAL_HEIGHT: usize = 480;
+
 lazy_static::lazy_static! {
-    static ref WINDOW_BUFFER: Mutex<Vec<u32>> = Mutex::new(vec![0; WIDTH * HEIGHT]);
+    static ref WINDOW_BUFFER: Mutex<Vec<u32>> = Mutex::new(vec![0; INITIAL_WIDTH * INITIAL_HEIGHT]);
 }
 
 pub struct NativeEngine {
@@ -16,7 +19,15 @@ pub struct NativeEngine {
 impl NativeEngine {
     pub fn new(world: crate::world::World) -> Self {
         let mut window =
-            Window::new("CanvasGame", WIDTH, HEIGHT, WindowOptions::default()).unwrap();
+            Window::new(
+                "CanvasGame",
+                INITIAL_WIDTH,
+                INITIAL_HEIGHT, 
+                WindowOptions {
+                    resize: true,
+                    .. WindowOptions::default()
+                }
+            ).unwrap();
 
         window.limit_update_rate(None);
 
@@ -30,13 +41,15 @@ impl NativeEngine {
     fn dump(&self, _interpolation: f64) {
         #[cfg(feature = "dump_log")]
         println!(
-            "pos: x: {:3.3} y: {:3.3} z: {:3.3} scroll: {:3.3}, {:3.3}, frame interpolation: {:1.3}",
+            "x: {:3.3} y: {:3.3} z: {:3.3} scroll: {:3.3} {:3.3} frame interpolation: {:1.3} w: {} h: {}",
             self.world.player.entity.pos.x,
             self.world.player.entity.pos.y,
             self.world.player.entity.pos.z,
             self.world.scroll.0,
             self.world.scroll.1,
             _interpolation,
+            self.width(),
+            self.height(),
         );
     }
 
@@ -51,7 +64,7 @@ impl NativeEngine {
                 self.dump(interpolation);
                 let buf = WINDOW_BUFFER.lock().unwrap();
                 self.window
-                    .update_with_buffer(&buf, WIDTH, HEIGHT)
+                    .update_with_buffer(&buf, self.width(), self.height())
                     .unwrap();
             }
 
@@ -94,9 +107,16 @@ impl NativeEngine {
 }
 
 impl Engine for NativeEngine {
+    fn width(&self) -> usize {
+        self.window.get_size().0
+    }
+    fn height(&self) -> usize {
+        self.window.get_size().1
+    }
+
     fn clear(&self) {
         let mut buf = WINDOW_BUFFER.lock().unwrap();
-        *buf = vec![0; WIDTH * HEIGHT];
+        *buf = vec![0; self.width() * self.height()];
     }
 
     fn set_at(&self, idx: usize, color: (u8, u8, u8)) {
@@ -109,7 +129,7 @@ impl Engine for NativeEngine {
 
     fn render(&mut self) {
         self.clear();
-        self.world.scroll(self.center(), (WIDTH as f64, HEIGHT as f64));
+        self.world.scroll(self.center(), (self.width() as f64, self.height() as f64));
         for entity in self.world.entities.iter() {
             self.render_entity(&entity, self.world.scroll);
         }

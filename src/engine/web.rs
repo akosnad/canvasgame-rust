@@ -15,7 +15,6 @@ impl WebEngine {
     pub fn new(world: crate::world::World) -> Self {
         WebEngine {
             ctx: context(),
-            //            screen: Screen::new(canvas().width() as usize, canvas().height() as usize),
             canvas: canvas(),
             ftime: 0.,
             world: world,
@@ -60,11 +59,18 @@ impl WebEngine {
 }
 
 impl Engine for WebEngine {
+    fn width(&self) -> usize {
+        self.canvas.width() as usize
+    }
+    fn height(&self) -> usize {
+        self.canvas.height() as usize
+    }
+
     fn clear(&self) {
         self.ctx.set_fill_style(&"black".into());
         self.ctx.fill_rect(0., 0., self.canvas.width() as f64, self.canvas.height() as f64);
     }
-    fn set_at(&self, idx: usize, color: (u8, u8, u8)) {
+    fn set_at(&self, _idx: usize, _color: (u8, u8, u8)) {
         // Unused in the web engine, since the rendering context uses x and y coords,
         // making this implementation unnecessary and would be slow.
         panic!("'set_at' should not be called on the web engine");
