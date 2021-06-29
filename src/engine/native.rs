@@ -107,9 +107,11 @@ impl NativeEngine {
 }
 
 impl Engine for NativeEngine {
+    #[inline]
     fn width(&self) -> usize {
         self.window.get_size().0
     }
+    #[inline]
     fn height(&self) -> usize {
         self.window.get_size().1
     }
@@ -125,6 +127,15 @@ impl Engine for NativeEngine {
         let b =  color.2 as u32;
         let mut buf = WINDOW_BUFFER.lock().unwrap();
         buf[idx] = r + g + b;
+    }
+
+    fn fill_bitmap(&self, bitmap: &RgbImage, x: usize, y: usize) {
+        for i in 0..bitmap.width() {
+            for j in 0..bitmap.height() {
+                let p = bitmap.get_pixel(i, j);
+                self.set(x + i as usize, y + j as usize, (p[0], p[1], p[2]));
+            }
+        }
     }
 
     fn render(&mut self) {

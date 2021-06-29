@@ -56,3 +56,6 @@ gameloop = {version = "0.2", optional = true }
 minifb = {version = "0.19", optional = true }
 lazy_static = {version = "1.4", optional = true }
 spin = {version = "0.9", optional = true}
+
+[dependencies]
+image = "0.23"

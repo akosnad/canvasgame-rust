@@ -2,6 +2,7 @@
 use alloc::{vec, vec::Vec};
 
 use crate::world::Entity;
+use image::RgbImage;
 
 #[cfg(target_arch = "wasm32")]
 pub mod web;
@@ -49,6 +50,8 @@ pub trait Engine {
             }
         }
     }
+
+    fn fill_bitmap(&self, bitmap: &RgbImage, x: usize, y: usize);
     fn render_entity(&self, entity: &Entity, offset: (f64, f64)) {
         let size_mult = 1. / (entity.hitbox.start.z / (entity.pos.z + entity.hitbox.start.z));
         let center = self.center();
@@ -61,7 +64,13 @@ pub trait Engine {
         if x < 0. || y < 0. {
             return;
         }
-        self.fill_rect(x as usize, y as usize, w as usize, h as usize, (0, 0, 255));
+
+        if let Some(bitmap) = &entity.texture {
+            self.fill_bitmap(bitmap, x as usize, y as usize);
+            return;
+        }
+
+        self.fill_rect(x as usize, y as usize, w as usize, h as usize, (255, 0, 255)); // Missing texture
     }
     fn render(&mut self);
 }
