@@ -129,15 +129,6 @@ impl Engine for NativeEngine {
         buf[idx] = r + g + b;
     }
 
-    fn fill_bitmap(&self, bitmap: &RgbImage, x: usize, y: usize) {
-        for i in 0..bitmap.width() {
-            for j in 0..bitmap.height() {
-                let p = bitmap.get_pixel(i, j);
-                self.set(x + i as usize, y + j as usize, (p[0], p[1], p[2]));
-            }
-        }
-    }
-
     fn render(&mut self) {
         self.clear();
         self.world.scroll(self.center(), (self.width() as f64, self.height() as f64));

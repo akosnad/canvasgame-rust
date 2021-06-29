@@ -51,7 +51,15 @@ pub trait Engine {
         }
     }
 
-    fn fill_bitmap(&self, bitmap: &RgbImage, x: usize, y: usize);
+    fn fill_bitmap(&self, bitmap: &RgbImage, x: usize, y: usize) {
+        for i in 0..bitmap.width() {
+            for j in 0..bitmap.height() {
+                let p = bitmap.get_pixel(i, j);
+                self.set(x + i as usize, y + j as usize, (p[0], p[1], p[2]));
+            }
+        }
+    }
+    
     fn render_entity(&self, entity: &Entity, offset: (f64, f64)) {
         let size_mult = 1. / (entity.hitbox.start.z / (entity.pos.z + entity.hitbox.start.z));
         let center = self.center();
