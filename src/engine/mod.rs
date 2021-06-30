@@ -1,7 +1,7 @@
 #[cfg(feature = "alloc")]
 use alloc::{vec, vec::Vec};
 
-use crate::world::Entity;
+use crate::world::{Entity, World};
 use image::RgbImage;
 
 #[cfg(target_arch = "wasm32")]
@@ -80,7 +80,13 @@ pub trait Engine {
 
         self.fill_rect(x as usize, y as usize, w as usize, h as usize, (255, 0, 255)); // Missing texture
     }
-    fn render(&mut self);
+
+    fn render_world(&mut self, world: &World) {
+        for entity in world.entities.iter() {
+            self.render_entity(&entity, world.scroll);
+        }
+        self.render_entity(&world.player.entity, world.scroll);
+    }
 }
 
 pub struct MovementKeys {

@@ -1,7 +1,7 @@
 use super::*;
 use image::RgbImage;
-use std::sync::Arc;
 
+#[derive(Clone)]
 pub struct Entity {
     pub pos: Coord,
     pub velocity: Velocity,

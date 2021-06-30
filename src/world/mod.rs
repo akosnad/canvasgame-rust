@@ -6,6 +6,7 @@ pub use base::*;
 pub use entity::Entity;
 pub use player::Player;
 
+#[derive(Clone)]
 pub struct World {
     pub player: Player,
     pub entities: Vec<Entity>,

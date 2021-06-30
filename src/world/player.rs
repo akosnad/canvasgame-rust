@@ -1,6 +1,7 @@
 use super::*;
 use crate::engine::{MOVEMENT_KEYS};
 
+#[derive(Clone)]
 pub struct Player {
     pub entity: Entity,
 }

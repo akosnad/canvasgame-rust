@@ -42,7 +42,10 @@ impl WebEngine {
 
         self.world.tick();
 
-        self.render();
+        self.world.scroll(self.center(), (self.canvas.width() as f64, self.canvas.height() as f64));
+        self.clear();
+        let current_world = self.world.clone();
+        self.render_world(&current_world);
 
         self.ctx.set_fill_style(&"white".into());
         self.ctx.set_font(&"10px monospace");
@@ -79,14 +82,6 @@ impl Engine for WebEngine {
         self.ctx.set_fill_style(&format!("rgb({} {} {})", color.0, color.1, color.2).as_str().into());
         self.ctx.fill_rect(x as f64, y as f64, w as f64, h as f64);
 
-    }
-    fn render(&mut self) {
-        self.clear();
-        self.world.scroll(self.center(), (self.canvas.width() as f64, self.canvas.height() as f64));
-        for entity in self.world.entities.iter() {
-            self.render_entity(&entity, self.world.scroll);
-        }
-        self.render_entity(&self.world.player.entity, self.world.scroll);
     }
 }
 

@@ -59,7 +59,12 @@ impl NativeEngine {
         loop {
             if needs_render {
                 needs_render = false;
-                self.render();
+                self.clear();
+                self.world.scroll(self.center(), (self.width() as f64, self.height() as f64));
+
+                // FIXME: this clone is nasty
+                let current_world = self.world.clone();
+                self.render_world(&current_world);
 
                 self.dump(interpolation);
                 let buf = WINDOW_BUFFER.lock().unwrap();
@@ -127,14 +132,5 @@ impl Engine for NativeEngine {
         let b =  color.2 as u32;
         let mut buf = WINDOW_BUFFER.lock().unwrap();
         buf[idx] = r + g + b;
-    }
-
-    fn render(&mut self) {
-        self.clear();
-        self.world.scroll(self.center(), (self.width() as f64, self.height() as f64));
-        for entity in self.world.entities.iter() {
-            self.render_entity(&entity, self.world.scroll);
-        }
-        self.render_entity(&self.world.player.entity, self.world.scroll);
     }
 }

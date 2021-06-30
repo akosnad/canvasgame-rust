@@ -95,7 +95,7 @@ impl core::ops::Sub for Coord {
     }
 }
 
-
+#[derive(Clone)]
 pub struct Region {
     /// Top left coordinate relative to origin
     /// 
@@ -125,6 +125,7 @@ impl Region {
     }
 }
 
+#[derive(Clone)]
 /// Indicates a direction in movement
 pub struct Velocity {
     /// Movement relative to current position
