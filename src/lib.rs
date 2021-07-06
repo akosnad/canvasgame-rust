@@ -6,6 +6,7 @@ extern crate alloc;
 
 pub mod engine;
 pub mod world;
+pub mod assets;
 
 #[cfg(target_arch = "wasm32")]
 mod wasm_utils;
@@ -14,7 +15,9 @@ mod wasm_utils;
 use {
     crate::wasm_utils::*, std::cell::RefCell, std::rc::Rc,
     wasm_bindgen::prelude::*,
+    crate::assets::*,
 };
+
 
 // When the `wee_alloc` feature is enabled, use `wee_alloc` as the global
 // allocator.
@@ -25,7 +28,7 @@ static ALLOC: wee_alloc::WeeAlloc = wee_alloc::WeeAlloc::INIT;
 
 #[cfg(target_arch = "wasm32")]
 #[wasm_bindgen]
-pub fn run() {
+pub async fn run() {
     wasm_utils::set_panic_hook();
     let mut e = world::Entity::new();
     e.pos = world::Coord {
@@ -35,6 +38,11 @@ pub fn run() {
     };
     let mut world = world::World::new();
     world.entities.push(e);
+
+    log!("loading assets");
+    let assets = load_assets().await.unwrap();
+    log!("importing assets");
+    import_assets(assets, &mut world).await.unwrap();
 
     let mut engine = engine::web::WebEngine::new(world);
 

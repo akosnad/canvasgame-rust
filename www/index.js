@@ -1,3 +1,7 @@
+import { load_asset_file, load_asset_index } from "./assets";
+window.load_asset_file_inner = load_asset_file;
+window.load_asset_index_inner = load_asset_index;
+
 import * as wasm from "canvasgame-rust";
 
 
@@ -18,4 +22,4 @@ window.addEventListener('keyup', e => {
     wasm.key_up(e);
 })
 
- wasm.run();
+wasm.run();

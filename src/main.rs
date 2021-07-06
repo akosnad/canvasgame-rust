@@ -1,11 +1,10 @@
 #![cfg(feature = "native")]
 
-use image::io::Reader;
 use std::error::Error;
+use futures::executor::block_on;
 
-fn run() -> Result<(), Box<dyn Error>>{
-    use canvasgame_rust::engine::native::NativeEngine;
-    use canvasgame_rust::world::*;
+async fn run() -> Result<(), Box<dyn Error>> {
+    use canvasgame_rust::{engine::native::NativeEngine, world::*, assets::*};
 
     let mut world = World::new();
     let mut e = Entity::new();
@@ -16,8 +15,8 @@ fn run() -> Result<(), Box<dyn Error>>{
     };
     world.entities.push(e);
 
-    let player_texture = Reader::open("./player.png")?.decode()?;
-    world.player.entity.set_texture(Some(player_texture.to_rgb8()));
+    let assets = load_assets()?;
+    import_assets(assets, &mut world).await?;
 
     let mut engine = NativeEngine::new(world);
     engine.engine_loop();
@@ -26,7 +25,8 @@ fn run() -> Result<(), Box<dyn Error>>{
 }
 
 fn main() {
-    if let Err(e) = run() {
+    let future = run();
+    if let Err(e) = block_on(future) {
         println!("Game exited with error: {}", e);
     }
 }

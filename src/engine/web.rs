@@ -78,15 +78,17 @@ impl Engine for WebEngine {
         // making this implementation unnecessary and would be slow.
         panic!("'set_at' should not be called on the web engine");
     }
+    fn set(&self, x: usize, y: usize, color: (u8, u8, u8)) {
+        self.ctx.set_fill_style(&format!("rgb({} {} {})", color.0, color.1, color.2).as_str().into());
+        self.ctx.fill_rect(x as f64, y as f64, 1.0, 1.0);
+    }
     fn fill_rect(&self, x: usize, y: usize, w: usize, h: usize, color: (u8, u8, u8)) {
         self.ctx.set_fill_style(&format!("rgb({} {} {})", color.0, color.1, color.2).as_str().into());
         self.ctx.fill_rect(x as f64, y as f64, w as f64, h as f64);
-
     }
 }
 
 #[wasm_bindgen]
-#[allow(dead_code)]
 pub fn key_down(e: web_sys::KeyboardEvent) {
     unsafe {
         match e.key().as_str() {
@@ -101,7 +103,6 @@ pub fn key_down(e: web_sys::KeyboardEvent) {
 }
 
 #[wasm_bindgen]
-#[allow(dead_code)]
 pub fn key_up(e: web_sys::KeyboardEvent) {
     unsafe {
         match e.key().as_str() {

@@ -1,8 +1,9 @@
 const CopyWebpackPlugin = require("copy-webpack-plugin");
-const MiniCssExtractPlugin = require("mini-css-extract-plugin");
 const path = require('path');
-
 module.exports = {
+  experiments: {
+    asyncWebAssembly: true,
+  },
   entry: "./bootstrap.js",
   output: {
     path: path.resolve(__dirname, "dist"),
@@ -14,14 +15,13 @@ module.exports = {
       patterns: [
         {from: 'index.html', to: '.'}
       ]
-    }),
-    new MiniCssExtractPlugin()
+    })
   ],
   module: {
     rules: [
       {
-        test: /\.css$/i,
-        use: [MiniCssExtractPlugin.loader, 'css-loader'],
+        test: /\.(png|jpg|gif)$/i,
+        type: 'asset/resource'
       },
     ],
   },

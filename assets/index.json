@@ -1,0 +1,7 @@
+[
+    {
+        "path": "player.png",
+        "type": "Texture",
+        "entity_id": "player"
+    }
+]
