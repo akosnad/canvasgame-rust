@@ -13,7 +13,11 @@ module.exports = {
   plugins: [
     new CopyWebpackPlugin({
       patterns: [
-        {from: 'index.html', to: '.'}
+        {from: 'index.html', to: '.'},
+        {
+          from: '../assets/**',
+          to: 'assets/'
+        }
       ]
     })
   ],
