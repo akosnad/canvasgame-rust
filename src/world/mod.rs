@@ -1,10 +1,12 @@
 pub mod base;
 pub mod entity;
 pub mod player;
+pub mod level;
 
 pub use base::*;
 pub use entity::Entity;
 pub use player::Player;
+pub use level::Level;
 
 #[derive(Clone)]
 pub struct World {
@@ -41,9 +43,18 @@ impl World {
         }
     }
     pub fn tick(&mut self) {
-        self.player.tick();
+        // FIXME: do all this without cloning and copying, thus more efficiently
+
+        let collision_partners: Vec<Region> = self.entities.iter().map(|e| { e.absolute_pos() }).collect();
+
+        self.player.tick(collision_partners.clone());
+
         for entity in self.entities.iter_mut() {
-            entity.tick();
+            let self_region = collision_partners.iter().position(|r| { *r == entity.absolute_pos() }).unwrap();
+            let mut regions_without_self = collision_partners.clone();
+            assert!(regions_without_self.remove(self_region) == entity.absolute_pos());
+
+            entity.tick(regions_without_self);
         }
     }
 }

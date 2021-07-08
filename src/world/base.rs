@@ -95,7 +95,7 @@ impl core::ops::Sub for Coord {
     }
 }
 
-#[derive(Clone)]
+#[derive(Clone, Copy, PartialEq, Debug)]
 pub struct Region {
     /// Top left coordinate relative to origin
     /// 
@@ -123,9 +123,17 @@ impl Region {
             end: Coord {x: 16., y: 16., z: 0. },
         }
     }
+
+    /// Test if this `Region` is in another
+    pub fn overlaps(&self, other: Self) -> bool {
+        self.start.x < other.end.x &&
+        self.end.x > other.start.x &&
+        self.start.y < other.end.y &&
+        self.end.y > other.start.y
+    }
 }
 
-#[derive(Clone)]
+#[derive(Clone, Copy)]
 /// Indicates a direction in movement
 pub struct Velocity {
     /// Movement relative to current position

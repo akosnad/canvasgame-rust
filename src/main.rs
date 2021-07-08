@@ -13,6 +13,7 @@ async fn run() -> Result<(), Box<dyn Error>> {
         y: 200.0,
         z: 5.0,
     };
+    e.hitbox.start.z = 4.;
     world.entities.push(e);
 
     let assets = load_assets()?;
