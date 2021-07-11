@@ -163,4 +163,14 @@ impl Velocity {
         // if self.to.z > self.max.z { self.to.z = self.max.z }
         // if self.to.z < -self.max.z { self.to.z = -self.max.z }
     }
+    /// Apply `falloff` values
+    pub fn do_falloff(&mut self) {
+        if self.to.x > 0. { self.to.x -= self.falloff.x }
+        if self.to.x < 0. { self.to.x += self.falloff.x }
+        
+        if self.to.y > 0. { self.to.y -= self.falloff.y }
+        if self.to.y < 0. { self.to.y += self.falloff.y }
+
+        self.to.z -= self.falloff.z;
+    }
 }
