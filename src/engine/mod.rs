@@ -13,6 +13,8 @@ pub mod native;
 #[cfg(feature = "bare")]
 pub mod bare;
 
+pub type Pixel = (u8, u8, u8);
+
 pub trait Engine {
     fn width(&self) -> usize;
     fn height(&self) -> usize;
@@ -30,18 +32,18 @@ pub trait Engine {
     }
 
     fn clear(&mut self);
-    fn set_at(&mut self, idx: usize, color: (u8, u8, u8));
+    fn set_at(&mut self, idx: usize, pixel: Pixel);
 
     /// If the texture has no alpha channel, it is safe to implement this funciton as no-op, since
     /// we call `set_at()` always in that case.
-    fn set_at_with_opacity(&mut self, idx: usize, color: (u8, u8, u8), opacity: f64);
+    fn set_at_with_opacity(&mut self, idx: usize, pixel: Pixel, opacity: f64);
 
     #[inline]
-    fn set(&mut self, x: usize, y: usize, color: (u8, u8, u8)) {
-        self.set_at(self.at(x, y), color);
+    fn set(&mut self, x: usize, y: usize, pixel: Pixel) {
+        self.set_at(self.at(x, y), pixel);
     }
 
-    fn fill_rect(&mut self, x: usize, y: usize, w: usize, h: usize, color: (u8, u8, u8)) {
+    fn fill_rect(&mut self, x: usize, y: usize, w: usize, h: usize, pixel: Pixel) {
         let (gw, gh) = (self.width(), self.height());
         if x > gw || x+w > gw
         || y > gh || y+h > gh {
@@ -50,7 +52,7 @@ pub trait Engine {
 
         for i in x..x+w {
             for j in y..y+h {
-                self.set(i, j, color);
+                self.set(i, j, pixel);
             }
         }
     }

@@ -5,10 +5,16 @@ use minifb::{Key, Window, WindowOptions};
 const INITIAL_WIDTH: usize = 640;
 const INITIAL_HEIGHT: usize = 480;
 
+fn game_pixel_to_window_pixel(pixel: Pixel) -> u32 {
+    ((pixel.0 as u32) << 16) +
+    ((pixel.1 as u32) << 8) +
+    pixel.2 as u32
+}
+
 pub struct NativeEngine {
     pub world: crate::world::World,
     pub window: Window,
-    buffer: Vec<(u8, u8, u8)>,
+    buffer: Vec<Pixel>,
     game_loop: GameLoop,
 }
 
@@ -64,12 +70,7 @@ impl NativeEngine {
                 self.render_world(&current_world);
 
                 self.dump(interpolation);
-                let buf: Vec<u32> = self.buffer.iter().map(|p| {
-                    let r = (p.0 as u32) << 16;
-                    let g = (p.1 as u32) << 8;
-                    let b =  p.2 as u32;
-                    r + g + b
-                }).collect();
+                let buf: Vec<u32> = self.buffer.iter().map(|p| { game_pixel_to_window_pixel(*p) }).collect();
                 self.window
                     .update_with_buffer(&buf, self.width(), self.height())
                     .unwrap();
@@ -127,31 +128,29 @@ impl Engine for NativeEngine {
         self.buffer = vec![(0, 0, 0); self.width() * self.height()];
     }
 
-    fn set_at(&mut self, idx: usize, color: (u8, u8, u8)) {
-        self.buffer[idx] = color;
+    fn set_at(&mut self, idx: usize, pixel: Pixel) {
+        self.buffer[idx] = pixel;
     }
 
-    fn set_at_with_opacity(&mut self, idx: usize, color: (u8, u8, u8), opacity: f64) {
+    fn set_at_with_opacity(&mut self, idx: usize, pixel: Pixel, opacity: f64) {
         use palette::{Blend, LinSrgb, LinSrgba, blend::PreAlpha};
 
-        let result;
-        {
-            let pixel = PreAlpha::from(LinSrgba::new(
-                self.buffer[idx].0 as f64 / 255.,
-                self.buffer[idx].1 as f64 / 255.,
-                self.buffer[idx].2 as f64 / 255.,
-                1.
-            ));
-            
-            let (r_new, g_new, b_new) = (
-                color.0 as f64 / 255.,
-                color.1 as f64 / 255.,
-                color.2 as f64 / 255.,
-            );
-            let new_pixel = PreAlpha::from(LinSrgba::new(r_new, g_new, b_new, opacity));
-            
-            result = LinSrgb::from_premultiplied(pixel.screen(new_pixel));
-        }
+        let old_pixel = PreAlpha::from(LinSrgba::new(
+            self.buffer[idx].0 as f64 / 255.,
+            self.buffer[idx].1 as f64 / 255.,
+            self.buffer[idx].2 as f64 / 255.,
+            1.
+        ));
+        
+        let (r_new, g_new, b_new) = (
+            pixel.0 as f64 / 255.,
+            pixel.1 as f64 / 255.,
+            pixel.2 as f64 / 255.,
+        );
+        let new_pixel = PreAlpha::from(LinSrgba::new(r_new, g_new, b_new, opacity));
+        
+        let result = LinSrgb::from_premultiplied(old_pixel.screen(new_pixel));
+
         self.set_at(idx, (
             (result.red   * 255.) as u8,
             (result.green * 255.) as u8,
