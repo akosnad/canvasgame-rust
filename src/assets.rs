@@ -44,14 +44,14 @@ pub async fn import_asset(asset: &Asset, world: &mut World) -> Result<(), Box<dy
             let texture;
             
             #[cfg(feature = "native")]
-            { texture = image::io::Reader::open(path.clone())?.decode()?.to_rgb8(); }
+            { texture = image::io::Reader::open(path.clone())?.decode()?.to_rgba8(); }
 
             #[cfg(target_arch = "wasm32")]
             {
                 let buf = path.clone().as_mut_ptr();
                 let len = path.len();
                 let data = crate::wasm_utils::load_asset_file(buf, len).await;
-                texture = crate::wasm_utils::load_image_from_array(&data).to_rgb8();
+                texture = crate::wasm_utils::load_image_from_array(&data).to_rgba8();
             }
 
             if let Some(id) = &asset.entity_id {

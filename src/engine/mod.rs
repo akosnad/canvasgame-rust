@@ -2,7 +2,7 @@
 use alloc::{vec, vec::Vec};
 
 use crate::world::{Entity, World};
-use image::RgbImage;
+use image::RgbaImage;
 
 #[cfg(target_arch = "wasm32")]
 pub mod web;
@@ -29,15 +29,19 @@ pub trait Engine {
         )
     }
 
-    fn clear(&self);
-    fn set_at(&self, idx: usize, color: (u8, u8, u8));
+    fn clear(&mut self);
+    fn set_at(&mut self, idx: usize, color: (u8, u8, u8));
+
+    /// If the texture has no alpha channel, it is safe to implement this funciton as no-op, since
+    /// we call `set_at()` always in that case.
+    fn set_at_with_opacity(&mut self, idx: usize, color: (u8, u8, u8), opacity: f64);
 
     #[inline]
-    fn set(&self, x: usize, y: usize, color: (u8, u8, u8)) {
+    fn set(&mut self, x: usize, y: usize, color: (u8, u8, u8)) {
         self.set_at(self.at(x, y), color);
     }
 
-    fn fill_rect(&self, x: usize, y: usize, w: usize, h: usize, color: (u8, u8, u8)) {
+    fn fill_rect(&mut self, x: usize, y: usize, w: usize, h: usize, color: (u8, u8, u8)) {
         let (gw, gh) = (self.width(), self.height());
         if x > gw || x+w > gw
         || y > gh || y+h > gh {
@@ -51,16 +55,21 @@ pub trait Engine {
         }
     }
 
-    fn fill_bitmap(&self, bitmap: &RgbImage, x: usize, y: usize) {
+    fn fill_bitmap(&mut self, bitmap: &RgbaImage, x: usize, y: usize) {
         for i in 0..bitmap.width() {
             for j in 0..bitmap.height() {
                 let p = bitmap.get_pixel(i, j);
-                self.set(x + i as usize, y + j as usize, (p[0], p[1], p[2]));
+                let opacity = p[3] as f64 / 255.;
+                if opacity == 1. {
+                    self.set(x + i as usize, y + j as usize, (p[0], p[1], p[2]));
+                } else {
+                    self.set_at_with_opacity(self.at(x + i as usize, y + j as usize), (p[0], p[1], p[2]), opacity);
+                }
             }
         }
     }
     
-    fn render_entity(&self, entity: &Entity, offset: (f64, f64)) {
+    fn render_entity(&mut self, entity: &Entity, offset: (f64, f64)) {
         let size_mult = 1. / (entity.hitbox.start.z / (entity.pos.z + entity.hitbox.start.z));
         let center = self.center();
 

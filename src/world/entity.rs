@@ -1,5 +1,5 @@
 use super::*;
-use image::RgbImage;
+use image::RgbaImage;
 
 #[derive(Clone)]
 pub struct Entity {
@@ -7,7 +7,7 @@ pub struct Entity {
     pub vel: Velocity,
     pub(in crate::world) in_air: bool,
     pub hitbox: Region,
-    pub texture: Option<RgbImage>,
+    pub texture: Option<RgbaImage>,
 }
 
 impl Entity {
@@ -29,7 +29,7 @@ impl Entity {
         }
     }
 
-    pub fn set_texture(&mut self, texture: Option<RgbImage>) {
+    pub fn set_texture(&mut self, texture: Option<RgbaImage>) {
         if let Some(bitmap) = texture {
             let (w, h) = (bitmap.width(), bitmap.height());
             self.hitbox.start.x = - (w as f64 / 2.);
