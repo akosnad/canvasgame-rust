@@ -69,22 +69,30 @@ impl Engine for WebEngine {
         self.canvas.height() as usize
     }
 
-    fn clear(&self) {
+    fn clear(&mut self) {
         self.ctx.set_fill_style(&"black".into());
         self.ctx.fill_rect(0., 0., self.canvas.width() as f64, self.canvas.height() as f64);
     }
-    fn set_at(&self, _idx: usize, _color: (u8, u8, u8)) {
-        // Unused in the web engine, since the rendering context uses x and y coords,
-        // making this implementation unnecessary and would be slow.
+    fn set_at(&mut self, _idx: usize, _pixel: Pixel) {
+        // Unused in the web engine, since the rendering context uses x and y coords.
+        // Using this implementation would be unnecessarily slow.
         panic!("'set_at' should not be called on the web engine");
     }
-    fn set(&self, x: usize, y: usize, color: (u8, u8, u8)) {
-        self.ctx.set_fill_style(&format!("rgb({} {} {})", color.0, color.1, color.2).as_str().into());
+    fn set_at_with_opacity(&mut self, _idx: usize, _pixel: Pixel, _opacity: f64) {
+        panic!("'set_at_with_opacity' should not be called on the web engine");
+    }
+    fn set(&mut self, x: usize, y: usize, pixel: Pixel) {
+        self.ctx.set_fill_style(&format!("rgb({} {} {})", pixel.0, pixel.1, pixel.2).as_str().into());
         self.ctx.fill_rect(x as f64, y as f64, 1.0, 1.0);
     }
-    fn fill_rect(&self, x: usize, y: usize, w: usize, h: usize, color: (u8, u8, u8)) {
-        self.ctx.set_fill_style(&format!("rgb({} {} {})", color.0, color.1, color.2).as_str().into());
-        self.ctx.fill_rect(x as f64, y as f64, w as f64, h as f64);
+    fn set_with_opacity(&mut self, x: usize, y: usize, pixel: Pixel, opacity: f64) {
+        self.ctx.set_fill_style(&format!("rgba({},{},{},{:1.}", pixel.0, pixel.1, pixel.2, opacity).as_str().into());
+        self.ctx.fill_rect(x as f64, y as f64, 1.0, 1.0);
+    }
+    fn fill_rect(&mut self, x: usize, y: usize, w: usize, h: usize, pixel: Pixel) {
+        self.ctx.set_fill_style(&format!("rgb({} {} {})", pixel.0, pixel.1, pixel.2).as_str().into());
+        self.
+        ctx.fill_rect(x as f64, y as f64, w as f64, h as f64);
     }
 }
 

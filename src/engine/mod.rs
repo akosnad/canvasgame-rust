@@ -40,7 +40,11 @@ pub trait Engine {
 
     #[inline]
     fn set(&mut self, x: usize, y: usize, pixel: Pixel) {
-        self.set_at(self.at(x, y), pixel);
+        self.set_at(self.at(x, y), pixel)
+    }
+    #[inline]
+    fn set_with_opacity(&mut self, x: usize, y: usize, pixel: Pixel, opacity: f64) {
+        self.set_at_with_opacity(self.at(x, y), pixel, opacity)
     }
 
     fn fill_rect(&mut self, x: usize, y: usize, w: usize, h: usize, pixel: Pixel) {
@@ -65,7 +69,7 @@ pub trait Engine {
                 if opacity == 1. {
                     self.set(x + i as usize, y + j as usize, (p[0], p[1], p[2]));
                 } else {
-                    self.set_at_with_opacity(self.at(x + i as usize, y + j as usize), (p[0], p[1], p[2]), opacity);
+                    self.set_with_opacity(x + i as usize, y + j as usize, (p[0], p[1], p[2]), opacity);
                 }
             }
         }
