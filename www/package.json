@@ -5,12 +5,13 @@
   "main": "index.js",
   "scripts": {
     "build": "webpack --config webpack.config.js",
-    "start": "webpack-dev-server"
+    "start": "webpack serve"
   },
   "devDependencies": {
     "copy-webpack-plugin": "^6",
     "webpack": "^5",
-    "webpack-cli": "^3",
+    "webpack-cli": "^4",
+    "@webpack-cli/serve": "^1.5.2",
     "webpack-dev-server": "^4.3.0"
   },
   "dependencies": {
