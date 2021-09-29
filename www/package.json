@@ -11,7 +11,7 @@
     "copy-webpack-plugin": "^6",
     "webpack": "^5",
     "webpack-cli": "^3",
-    "webpack-dev-server": "^3"
+    "webpack-dev-server": "^4.3.0"
   },
   "dependencies": {
     "canvasgame-rust": "file:../pkg"
