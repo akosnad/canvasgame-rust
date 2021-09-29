@@ -2,7 +2,7 @@ import * as wasm from "canvasgame-rust";
 import { memory } from "../pkg/canvasgame_rust_bg.wasm";
 
 async function load(path) {
-    const resp = await fetch(path);
+    const resp = await fetch(document.location.href + path.startsWith('/') ? path.substring(1) : path);
     const buf = await resp.arrayBuffer();
 
     const len = buf.byteLength;

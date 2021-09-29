@@ -3,6 +3,7 @@
   "version": "0.1.0",
   "description": "CanvasGame re-written in rust WASM",
   "main": "index.js",
+  "homepage": "./",
   "scripts": {
     "build": "webpack --config webpack.config.js",
     "start": "webpack serve"
