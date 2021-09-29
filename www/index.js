@@ -6,12 +6,16 @@ import * as wasm from "canvasgame-rust";
 
 
 let canvas = document.getElementById('game-canvas');
-canvas.width = window.innerWidth;
-canvas.height = window.innerHeight;
+{ 
+    let scale = window.devicePixelRatio;
+    canvas.width = Math.floor(window.innerWidth * scale);
+    canvas.height = Math.floor(window.innerHeight * scale);
+}
 
 window.addEventListener('resize', () => {
-    canvas.width = window.innerWidth;
-    canvas.height = window.innerHeight;
+    let scale = window.devicePixelRatio;
+    canvas.width = Math.floor(window.innerWidth * scale);
+    canvas.height = Math.floor(window.innerHeight * scale);
 });
 
 window.addEventListener('keydown', e => {
