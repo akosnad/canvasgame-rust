@@ -20,6 +20,11 @@ jobs:
       uses: jetli/wasm-pack-action@v0.3.0
     - name: Build WASM
       run: wasm-pack build --release -- --no-default-features --features web
+    - uses: actions/setup-node@v2
+      with:
+        node-version: '14'
+    - run: npm install
+      working-directory: www
     - name: Build webpack project
       run: npm run build --production
       working-directory: www
@@ -27,7 +32,7 @@ jobs:
       env:
         SSH_PRIVATE_KEY: ${{ secrets.SERVER_SSH_KEY }}
         ARGS: "-rlDzv"
-        SOURCE: "dist/"
+        SOURCE: "www/dist/"
         REMOTE_HOST: ${{ secrets.REMOTE_HOST }}
         REMOTE_USER: ${{ secrets.REMOTE_USER }}
         TARGET: ${{ secrets.REMOTE_TARGET }}
