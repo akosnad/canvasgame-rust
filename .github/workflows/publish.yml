@@ -1,0 +1,33 @@
+name: Rust
+
+on:
+  push:
+    branches: [ master ]
+  pull_request:
+    branches: [ master ]
+
+env:
+  CARGO_TERM_COLOR: always
+
+jobs:
+  build:
+
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v2
+    - name: wasm-pack-action
+      uses: jetli/wasm-pack-action@v0.3.0
+    - name: Build WASM
+      run: wasm-pack build --release -- --no-default-features --features web
+    - name: Build webpack project
+      run: npm run build --production
+      working-directory: www
+    - uses: easingthemes/ssh-deploy@main
+      env:
+        SSH_PRIVATE_KEY: ${{ secrets.SERVER_SSH_KEY }}
+        ARGS: "-rlDzv"
+        SOURCE: "dist/"
+        REMOTE_HOST: ${{ secrets.REMOTE_HOST }}
+        REMOTE_USER: ${{ secrets.REMOTE_USER }}
+        TARGET: ${{ secrets.REMOTE_TARGET }}
