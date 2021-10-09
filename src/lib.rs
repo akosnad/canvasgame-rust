@@ -6,6 +6,8 @@ extern crate alloc;
 
 pub mod engine;
 pub mod world;
+
+#[cfg(not(feature = "bare"))]
 pub mod assets;
 
 #[cfg(target_arch = "wasm32")]

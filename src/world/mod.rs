@@ -8,6 +8,9 @@ pub use entity::Entity;
 pub use player::Player;
 pub use level::Level;
 
+#[cfg(feature = "alloc")]
+use alloc::vec::Vec;
+
 #[derive(Clone)]
 pub struct World {
     pub player: Player,

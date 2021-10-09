@@ -1,4 +1,6 @@
 use super::*;
+
+#[cfg(not(feature = "bare"))]
 use image::RgbaImage;
 
 #[derive(Clone)]
@@ -7,6 +9,8 @@ pub struct Entity {
     pub vel: Velocity,
     pub(in crate::world) in_air: bool,
     pub hitbox: Region,
+
+    #[cfg(not(feature = "bare"))]
     pub texture: Option<RgbaImage>,
 }
 
@@ -17,6 +21,8 @@ impl Entity {
             hitbox: Region::default_hitbox(),
             vel: Velocity::new(),
             in_air: false,
+
+            #[cfg(not(feature = "bare"))]
             texture: None,
         }
     }
@@ -29,6 +35,7 @@ impl Entity {
         }
     }
 
+    #[cfg(not(feature = "bare"))]
     pub fn set_texture(&mut self, texture: Option<RgbaImage>) {
         if let Some(bitmap) = texture {
             let (w, h) = (bitmap.width(), bitmap.height());

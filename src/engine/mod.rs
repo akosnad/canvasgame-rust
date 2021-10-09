@@ -1,7 +1,6 @@
-#[cfg(feature = "alloc")]
-use alloc::{vec, vec::Vec};
-
 use crate::world::{Entity, World};
+
+#[cfg(not(feature = "bare"))]
 use image::RgbaImage;
 
 #[cfg(target_arch = "wasm32")]
@@ -61,6 +60,7 @@ pub trait Engine {
         }
     }
 
+    #[cfg(not(feature = "bare"))]
     fn fill_bitmap(&mut self, bitmap: &RgbaImage, x: usize, y: usize) {
         for i in 0..bitmap.width() {
             for j in 0..bitmap.height() {
@@ -74,7 +74,7 @@ pub trait Engine {
             }
         }
     }
-    
+
     fn render_entity(&mut self, entity: &Entity, offset: (f64, f64)) {
         let size_mult = 1. / (entity.hitbox.start.z / (entity.pos.z + entity.hitbox.start.z));
         let center = self.center();
@@ -88,9 +88,12 @@ pub trait Engine {
             return;
         }
 
-        if let Some(bitmap) = &entity.texture {
-            self.fill_bitmap(bitmap, x as usize, y as usize);
-            return;
+        #[cfg(not(feature = "bare"))]
+        {
+            if let Some(bitmap) = &entity.texture {
+                self.fill_bitmap(bitmap, x as usize, y as usize);
+                return;
+            }
         }
 
         self.fill_rect(x as usize, y as usize, w as usize, h as usize, (255, 0, 255)); // Missing texture

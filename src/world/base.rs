@@ -1,6 +1,3 @@
-#[cfg(feature = "alloc")]
-use alloc::vec::Vec;
-
 /// Coordinate relative to middle of screen
 #[derive(Debug, PartialEq)]
 pub struct Coord {
